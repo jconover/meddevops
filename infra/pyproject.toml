@@ -1,0 +1,13 @@
+[project]
+name = "infra"
+version = "0.1.0"
+description = "AWS CDK app for the telemetry pipeline"
+requires-python = ">=3.14"
+dependencies = [
+    "aws-cdk-lib==2.270.0",
+    "constructs>=10.8.1,<11",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13"]
+build-backend = "uv_build"

@@ -1,0 +1,1 @@
+"""Procedure log ingestion Lambda."""
