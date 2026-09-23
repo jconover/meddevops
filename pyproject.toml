@@ -6,13 +6,15 @@ requires-python = ">=3.14"
 dependencies = []
 
 [tool.uv.workspace]
-members = ["packages/*", "simulator"]
+members = ["packages/*", "simulator", "services/*"]
 
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
     "ruff>=0.16.8",
     "moto[s3]>=5.2.3",
+    "testcontainers[postgres]>=4.15.0",
+    "httpx>=0.28.1",
 ]
 
 [tool.ruff]
@@ -29,4 +31,5 @@ addopts = "--import-mode=importlib"
 testpaths = [
     "packages/telemetry/tests",
     "simulator/tests",
+    "services/api/tests",
 ]
