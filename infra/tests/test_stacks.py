@@ -141,3 +141,30 @@ def test_fargate_task_is_arm64_with_db_secrets(templates):
 
 def test_api_url_output(templates):
     templates["api"].has_output("ApiUrl", {})
+
+
+def test_ingest_s3_access_is_scoped_no_delete(templates):
+    """Lambda's S3 grant must be read (raw/*) + put (quarantine/*) only, never delete."""
+    policies = templates["ingest"].find_resources(
+        "AWS::IAM::Policy", {"Properties": {"PolicyName": Match.string_like_regexp("IngestFn")}}
+    )
+    assert len(policies) == 1
+    statements = next(iter(policies.values()))["Properties"]["PolicyDocument"]["Statement"]
+
+    actions = []
+    for statement in statements:
+        action = statement["Action"]
+        actions.extend(action if isinstance(action, list) else [action])
+    assert not any(a.startswith("s3:DeleteObject") for a in actions)
+
+    def key_suffixes(resource):
+        resources = resource if isinstance(resource, list) else [resource]
+        suffixes = []
+        for r in resources:
+            if isinstance(r, dict) and "Fn::Join" in r:
+                suffixes.append("".join(p for p in r["Fn::Join"][1] if isinstance(p, str)))
+        return suffixes
+
+    suffixes = [s for statement in statements for s in key_suffixes(statement["Resource"])]
+    assert "/raw/*" in suffixes
+    assert "/quarantine/*" in suffixes

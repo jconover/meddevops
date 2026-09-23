@@ -78,6 +78,7 @@ class ApiStack(Stack):
             security_groups=[service_sg],
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS),
             circuit_breaker=ecs.DeploymentCircuitBreaker(rollback=True),
+            min_healthy_percent=100,
         )
         # See ingest.py for why this rule is created directly here rather than via
         # data.db.connections.allow_default_port_from (would cycle DataStack <-> ApiStack).

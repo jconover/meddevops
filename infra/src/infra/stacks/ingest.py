@@ -43,7 +43,8 @@ class IngestStack(Stack):
             log_group=log_group,
         )
         data.db_secret.grant_read(fn)
-        data.bucket.grant_read_write(fn)
+        data.bucket.grant_read(fn, "raw/*")
+        data.bucket.grant_put(fn, "quarantine/*")
         # Adding the ingress rule via data.db.connections would make DataStack depend on
         # IngestStack (a cycle), since the rule's source is this stack's Lambda security
         # group. Create the rule here instead, referencing the DB's security group id.
