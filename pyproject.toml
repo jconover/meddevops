@@ -32,4 +32,5 @@ testpaths = [
     "packages/telemetry/tests",
     "simulator/tests",
     "services/api/tests",
+    "services/ingest/tests",
 ]
