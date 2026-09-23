@@ -52,6 +52,7 @@ class DataStack(Stack):
             credentials=rds.Credentials.from_generated_secret("telemetry_admin"),
             database_name="telemetry",
             allocated_storage=20,
+            storage_type=rds.StorageType.GP3,
             storage_encrypted=True,
             multi_az=False,
             publicly_accessible=False,

@@ -19,7 +19,12 @@ def test_single_nat_gateway(templates):
 def test_database_is_private_and_encrypted(templates):
     templates["data"].has_resource_properties(
         "AWS::RDS::DBInstance",
-        {"PubliclyAccessible": False, "StorageEncrypted": True, "DBInstanceClass": "db.t4g.micro"},
+        {
+            "PubliclyAccessible": False,
+            "StorageEncrypted": True,
+            "DBInstanceClass": "db.t4g.micro",
+            "StorageType": "gp3",
+        },
     )
 
 
