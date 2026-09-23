@@ -34,13 +34,20 @@ uv run python scripts/smoke_test.py
 
 Upload data only after `cdk deploy` finishes: the API applies database migrations on startup.
 
+Look up the stack outputs:
+
+```bash
+BUCKET=$(aws cloudformation describe-stacks --stack-name Telemetry-Data --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
+API_URL=$(aws cloudformation describe-stacks --stack-name Telemetry-Api --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+```
+
 Load sample data:
 
 ```bash
-uv run simulator --bucket <BucketName output> --devices 5 --procedures 4 --invalid
+uv run simulator --bucket "$BUCKET" --devices 5 --procedures 4 --invalid
 ```
 
-The API docs are at `<ApiUrl output>/docs`. Only the IP passed in `allowedCidr` can reach it.
+The API docs are at `$API_URL/docs`. Only the IP passed in `allowedCidr` can reach it.
 
 ## Tear down
 
@@ -51,6 +58,14 @@ cd infra && npx aws-cdk@2.1142.0 destroy --all --force -c allowedCidr=0.0.0.0/32
 ```
 
 This removes every stack resource, including data. The CDK bootstrap stack remains.
+
+Confirm nothing billable is left (each should print `[]`):
+
+```bash
+aws rds describe-db-instances --query "DBInstances[].DBInstanceIdentifier"
+aws ec2 describe-nat-gateways --filter Name=state,Values=available --query "NatGateways[].NatGatewayId"
+aws elbv2 describe-load-balancers --query "LoadBalancers[].LoadBalancerName"
+```
 
 CDK custom-resource Lambdas also leave behind small `/aws/lambda/Telemetry-Data-*` log
 groups. List them with:
