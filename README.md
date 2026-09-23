@@ -32,6 +32,8 @@ cd ..
 uv run python scripts/smoke_test.py
 ```
 
+Upload data only after `cdk deploy` finishes: the API applies database migrations on startup.
+
 Load sample data:
 
 ```bash
@@ -49,6 +51,13 @@ cd infra && npx aws-cdk@2.1142.0 destroy --all --force -c allowedCidr=0.0.0.0/32
 ```
 
 This removes every stack resource, including data. The CDK bootstrap stack remains.
+
+CDK custom-resource Lambdas also leave behind small `/aws/lambda/Telemetry-Data-*` log
+groups. List them with:
+
+```bash
+aws logs describe-log-groups --log-group-name-prefix /aws/lambda/Telemetry- --query "logGroups[].logGroupName"
+```
 
 ## Layout
 
