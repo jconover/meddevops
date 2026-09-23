@@ -50,6 +50,20 @@ def test_invalid_file_is_quarantined_not_retried(s3, db):
     s3.head_object(Bucket=BUCKET, Key="quarantine/bad.jsonl")
 
 
+def test_null_byte_payload_is_quarantined(s3, db):
+    log = generate_procedure("dev-001", START, random.Random(1), n_events=4)
+    log.events[0].payload["note"] = "bad\x00char"
+    key = "raw/nullbyte.jsonl"
+    s3.put_object(Bucket=BUCKET, Key=key, Body=dump_log(log).encode())
+    result = handle_batch([sqs_record(key)], s3, db)
+    assert result == {"batchItemFailures": []}
+    status, error = db.execute(
+        "SELECT status, error FROM ingest_files WHERE s3_key = %s", (key,)
+    ).fetchone()
+    assert status == "quarantined"
+    assert error
+
+
 def test_duplicate_procedure_is_quarantined(s3, db):
     put_valid(s3, "raw/a.jsonl", seed=1)
     put_valid(s3, "raw/b.jsonl", seed=1)

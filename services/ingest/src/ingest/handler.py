@@ -52,6 +52,8 @@ def process_object(s3, conn: psycopg.Connection, notification: dict) -> None:
         _quarantine(s3, conn, bucket, key, received_at, str(e))
     except psycopg.errors.UniqueViolation:
         _quarantine(s3, conn, bucket, key, received_at, "duplicate procedure_id")
+    except psycopg.DataError as e:
+        _quarantine(s3, conn, bucket, key, received_at, str(e))
     else:
         logger.info("%s %s", "stored" if stored else "already ingested", key)
 
