@@ -7,3 +7,6 @@
 **/cdk.out
 docs
 .superpowers
+.env
+**/.env*
+**/cdk.context.json
