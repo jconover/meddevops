@@ -85,6 +85,13 @@ def test_lambda_reports_batch_item_failures(templates):
     )
 
 
+def test_ingest_concurrency_is_limited(templates):
+    templates["ingest"].has_resource_properties(
+        "AWS::Lambda::EventSourceMapping",
+        {"ScalingConfig": {"MaximumConcurrency": 2}},
+    )
+
+
 def test_alb_accepts_only_allowed_cidr(templates):
     templates["api"].has_resource_properties(
         "AWS::EC2::SecurityGroup",

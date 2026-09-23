@@ -59,5 +59,10 @@ class IngestStack(Stack):
             description="ingest lambda to postgres",
         )
         fn.add_event_source(
-            event_sources.SqsEventSource(data.queue, batch_size=10, report_batch_item_failures=True)
+            event_sources.SqsEventSource(
+                data.queue,
+                batch_size=10,
+                report_batch_item_failures=True,
+                max_concurrency=2,
+            )
         )
