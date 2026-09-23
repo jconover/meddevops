@@ -14,7 +14,7 @@ dev = [
     "ruff>=0.16.8",
     "moto[s3]>=5.2.3",
     "testcontainers[postgres]>=4.15.0",
-    "httpx>=0.28.1",
+    "httpx2>=2.13.1",
 ]
 
 [tool.ruff]
