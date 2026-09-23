@@ -18,6 +18,15 @@ def stack_output(cf, stack: str, key: str) -> str:
     return next(o["OutputValue"] for o in outputs if o["OutputKey"] == key)
 
 
+def get_or_none(url: str) -> httpx2.Response | None:
+    """GET url, treating transport errors and non-200 responses as 'not ready yet'."""
+    try:
+        response = httpx2.get(url)
+    except httpx2.TransportError:
+        return None
+    return response if response.status_code == 200 else None
+
+
 def wait_for(check: Callable[[], bool], what: str, timeout: int = 180) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -41,18 +50,17 @@ def main() -> None:
     bad_key = invalid_key(now, rng)
     upload(s3, bucket, bad_key, INVALID_LOG)
 
-    wait_for(lambda: httpx2.get(f"{api}/health").status_code == 200, "api healthy")
+    wait_for(lambda: get_or_none(f"{api}/health") is not None, "api healthy")
     wait_for(
-        lambda: httpx2.get(f"{api}/procedures/{log.header.procedure_id}").status_code == 200,
+        lambda: get_or_none(f"{api}/procedures/{log.header.procedure_id}") is not None,
         "valid log ingested",
     )
-    wait_for(
-        lambda: (
-            bad_key
-            in {f["s3_key"] for f in httpx2.get(f"{api}/ingest/files?status=quarantined").json()}
-        ),
-        "invalid log quarantined",
-    )
+
+    def bad_key_quarantined() -> bool:
+        response = get_or_none(f"{api}/ingest/files?status=quarantined")
+        return response is not None and bad_key in {f["s3_key"] for f in response.json()}
+
+    wait_for(bad_key_quarantined, "invalid log quarantined")
     print("smoke test passed")
 
 
