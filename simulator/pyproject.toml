@@ -1,0 +1,16 @@
+[project]
+name = "simulator"
+version = "0.1.0"
+description = "Generate and upload synthetic procedure logs"
+requires-python = ">=3.14"
+dependencies = ["telemetry", "boto3>=1.43.100"]
+
+[project.scripts]
+simulator = "simulator.cli:main"
+
+[tool.uv.sources]
+telemetry = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13"]
+build-backend = "uv_build"
