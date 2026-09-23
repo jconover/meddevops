@@ -1,0 +1,10 @@
+[project]
+name = "telemetry"
+version = "0.1.0"
+description = "Shared telemetry log models"
+requires-python = ">=3.14"
+dependencies = ["pydantic>=2.13.5"]
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13"]
+build-backend = "uv_build"
